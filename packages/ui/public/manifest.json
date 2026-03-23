@@ -1,6 +1,6 @@
 {
-  "name": "What I Would Forget",
-  "short_name": "WIWF",
+  "name": "Oh Right!",
+  "short_name": "Oh Right!",
   "description": "A local-first cross-platform reminder app",
   "start_url": "/",
   "display": "standalone",

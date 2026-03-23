@@ -8,5 +8,5 @@ fn main() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .run(tauri::generate_context!())
-        .expect("error while running What I Would Forget");
+        .expect("error while running Oh Right!");
 }

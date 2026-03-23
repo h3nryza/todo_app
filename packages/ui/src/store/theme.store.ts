@@ -9,7 +9,7 @@ interface ThemeState {
 
 function getStoredTheme(): ThemeMode {
   try {
-    const stored = localStorage.getItem('wiwf-theme');
+    const stored = localStorage.getItem('ohright-theme');
     if (stored === 'light' || stored === 'dark' || stored === 'system') {
       return stored;
     }
@@ -23,7 +23,7 @@ export const useThemeStore = create<ThemeState>((set) => ({
   theme: getStoredTheme(),
   setTheme: (theme: ThemeMode) => {
     try {
-      localStorage.setItem('wiwf-theme', theme);
+      localStorage.setItem('ohright-theme', theme);
     } catch {
       // ignore
     }

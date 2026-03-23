@@ -39,8 +39,8 @@ export async function exportData(): Promise<boolean> {
     };
 
     const filePath = await save({
-      title: 'Export WIWF Data',
-      defaultPath: `wiwf-export-${new Date().toISOString().split('T')[0]}.json`,
+      title: 'Export Oh Right Data',
+      defaultPath: `ohright-export-${new Date().toISOString().split('T')[0]}.json`,
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });
 
@@ -57,7 +57,7 @@ export async function exportData(): Promise<boolean> {
 export async function importData(): Promise<boolean> {
   try {
     const filePath = await open({
-      title: 'Import WIWF Data',
+      title: 'Import Oh Right Data',
       multiple: false,
       filters: [{ name: 'JSON', extensions: ['json'] }],
     });

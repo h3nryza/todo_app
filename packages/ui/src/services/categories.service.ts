@@ -1,4 +1,4 @@
-import type { Category, CreateCategoryDto, UpdateCategoryDto } from '@wiwf/shared';
+import type { Category, CreateCategoryDto, UpdateCategoryDto } from '@ohright/shared';
 import { getDatabase } from '@/lib/database';
 import { emit, EVENTS } from '@/lib/events';
 

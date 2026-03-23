@@ -20,7 +20,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('WIWF Error:', error, errorInfo);
+    console.error('Oh Right Error:', error, errorInfo);
   }
 
   override render() {

@@ -17,7 +17,7 @@ import { format, isBefore, isAfter, isSameDay } from 'date-fns';
 import { useReminders } from '@/hooks/useReminders';
 import { useCategories } from '@/hooks/useCategories';
 import Sidebar from '@/components/Sidebar';
-import type { Reminder, Category, CompletionRecord, Subtask } from '@wiwf/shared';
+import type { Reminder, Category, CompletionRecord, Subtask } from '@ohright/shared';
 
 // ─── Query Builder Types ─────────────────────────────────────────────
 
@@ -314,7 +314,7 @@ export default function ReportPage() {
     const now = format(new Date(), 'yyyy-MM-dd HH:mm');
     const lines: string[] = [
       '============================================================',
-      '            WIWF - TASK REPORT',
+      '            Oh Right - TASK REPORT',
       `  Generated: ${now}`,
       `  Entries:   ${rows.length}`,
       '============================================================',
@@ -336,7 +336,7 @@ export default function ReportPage() {
     lines.push('  End of Report');
     const ok = await downloadFile(
       lines.join('\n'),
-      `WIWF_Report_${format(new Date(), 'yyyy-MM-dd')}.txt`,
+      `Oh Right_Report_${format(new Date(), 'yyyy-MM-dd')}.txt`,
       'text/plain',
     );
     setExportStatus(ok ? 'success' : 'error');
@@ -409,7 +409,7 @@ export default function ReportPage() {
     const csv = bom + [headers.join(','), ...csvRows].join('\n');
     const ok = await downloadFile(
       csv,
-      `WIWF_Report_${format(new Date(), 'yyyy-MM-dd')}.csv`,
+      `Oh Right_Report_${format(new Date(), 'yyyy-MM-dd')}.csv`,
       'text/csv;charset=utf-8',
     );
     setExportStatus(ok ? 'success' : 'error');
@@ -501,7 +501,7 @@ export default function ReportPage() {
       .join('\n');
 
     const htmlStr = [
-      '<!DOCTYPE html><html><head><meta charset="utf-8"><title>WIWF Report</title><style>',
+      '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Oh Right Report</title><style>',
       '* { margin:0; padding:0; box-sizing:border-box; }',
       'body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; font-size:12px; color:#1f2937; padding:40px; }',
       '.hdr { margin-bottom:24px; border-bottom:3px solid #6366f1; padding-bottom:16px; }',
@@ -515,7 +515,7 @@ export default function ReportPage() {
       '.ft { margin-top:24px; padding-top:12px; border-top:1px solid #e5e7eb; font-size:10px; color:#9ca3af; text-align:center; }',
       '@media print { .hint { display:none; } body { padding:16px; } }',
       '</style></head><body>',
-      '<div class="hdr"><h1>What I Would Forget - Task Report</h1>',
+      '<div class="hdr"><h1>Oh Right - Task Report</h1>',
       '<p>Generated: ' +
         escapeHtml(now) +
         ' &middot; ' +
@@ -527,14 +527,14 @@ export default function ReportPage() {
       '<table><thead><tr><th>Type</th><th>Name</th><th>Status</th><th>Priority</th><th>Category</th><th>Date</th><th>Notes</th><th>Subtasks</th></tr></thead><tbody>',
       tableRows,
       '</tbody></table>',
-      '<div class="ft">WIWF v1.0.0 &middot; Local-first Reminder App</div>',
+      '<div class="ft">Oh Right v1.0.0 &middot; Local-first Reminder App</div>',
       '</body></html>',
     ].join('\n');
 
     // Save the HTML file via Tauri dialog, then open it in the default browser
     const ok = await downloadFile(
       htmlStr,
-      `WIWF_Report_${format(new Date(), 'yyyy-MM-dd')}.html`,
+      `Oh Right_Report_${format(new Date(), 'yyyy-MM-dd')}.html`,
       'text/html',
     );
     if (ok) {

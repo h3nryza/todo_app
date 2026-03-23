@@ -296,9 +296,8 @@ export default function SettingsPage() {
                   </ol>
                   <div className="space-y-1 pl-4" style={{ color: 'var(--text-secondary)' }}>
                     <p>
-                      <strong>macOS:</strong> System Settings → Notifications → What I Would Forget
-                      → Allow Notifications ON. Set to "Alerts" or "Banners". Enable Sound and
-                      Badge.
+                      <strong>macOS:</strong> System Settings → Notifications → Oh Right → Allow
+                      Notifications ON. Set to "Alerts" or "Banners". Enable Sound and Badge.
                     </p>
                     <p>
                       <strong>Windows:</strong> Settings → System → Notifications → What I Would
@@ -368,7 +367,7 @@ export default function SettingsPage() {
             <div className="space-y-1.5">
               <div className="flex justify-between text-sm">
                 <span style={{ color: 'var(--text-secondary)' }}>App</span>
-                <span style={{ color: 'var(--text-primary)' }}>What I Would Forget</span>
+                <span style={{ color: 'var(--text-primary)' }}>Oh Right!</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span style={{ color: 'var(--text-secondary)' }}>Version</span>

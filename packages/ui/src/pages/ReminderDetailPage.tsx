@@ -20,8 +20,8 @@ import {
   formatRelativeTime,
   isOverdue,
   SNOOZE_OPTIONS,
-} from '@wiwf/shared';
-import type { CompletionRecord } from '@wiwf/shared';
+} from '@ohright/shared';
+import type { CompletionRecord } from '@ohright/shared';
 import { format } from 'date-fns';
 import {
   useReminder,

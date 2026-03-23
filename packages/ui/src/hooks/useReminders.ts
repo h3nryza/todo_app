@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Reminder, CreateReminderDto, UpdateReminderDto } from '@wiwf/shared';
+import type { Reminder, CreateReminderDto, UpdateReminderDto } from '@ohright/shared';
 import {
   getReminders as fetchReminders,
   getReminder as fetchReminder,

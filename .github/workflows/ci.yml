@@ -52,7 +52,7 @@ jobs:
       - name: Build shared
         run: npx tsc -p packages/shared/tsconfig.json
       - name: Run UI tests
-        run: npm run test -w @wiwf/ui --if-present
+        run: npm run test -w @ohright/ui --if-present
 
   build-web:
     name: Build Web

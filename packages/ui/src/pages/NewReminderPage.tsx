@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, X, StickyNote, ListChecks } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { ScheduleType, ReminderPriority } from '@wiwf/shared';
+import type { ScheduleType, ReminderPriority } from '@ohright/shared';
 import { useCreateReminder } from '@/hooks/useReminders';
 import { useCategories, useCreateCategory } from '@/hooks/useCategories';
 import Sidebar from '@/components/Sidebar';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Star, Trash2, Edit3, X, Check, ChevronRight } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { Category } from '@wiwf/shared';
+import type { Category } from '@ohright/shared';
 import {
   useCategories,
   useCreateCategory,

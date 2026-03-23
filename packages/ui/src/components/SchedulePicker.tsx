@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import type { ScheduleType } from '@wiwf/shared';
+import type { ScheduleType } from '@ohright/shared';
 
 interface SchedulePickerProps {
   type: ScheduleType;

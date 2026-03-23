@@ -6,8 +6,8 @@ import type {
   Subtask,
   CompletionRecord,
   ReminderStatus,
-} from '@wiwf/shared';
-import { calculateNextOccurrence } from '@wiwf/shared';
+} from '@ohright/shared';
+import { calculateNextOccurrence } from '@ohright/shared';
 import { getDatabase } from '@/lib/database';
 import { emit, EVENTS } from '@/lib/events';
 import { scheduleNotification, cancelNotification } from './notifications.service';

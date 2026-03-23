@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri/schema.json",
   "identifier": "default",
-  "description": "Default permissions for What I Would Forget",
+  "description": "Default permissions for Oh Right",
   "windows": ["main"],
   "permissions": [
     "core:default",
