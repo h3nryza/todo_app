@@ -372,7 +372,7 @@ export default function SettingsPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span style={{ color: 'var(--text-secondary)' }}>Version</span>
-                <span style={{ color: 'var(--text-primary)' }}>1.0.0</span>
+                <span style={{ color: 'var(--text-primary)' }}>0.0.1-alpha</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span style={{ color: 'var(--text-secondary)' }}>Architecture</span>

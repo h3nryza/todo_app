@@ -129,7 +129,7 @@ export default function Sidebar() {
       {/* Version footer */}
       <div className="px-5 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
         <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-          WIWF v1.0.0
+          WIWF v0.0.1-alpha
         </span>
       </div>
     </aside>
