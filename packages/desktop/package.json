@@ -1,0 +1,15 @@
+{
+  "name": "@wiwf/desktop",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "lint": "echo 'no-op'",
+    "type-check": "echo 'no-op'",
+    "clean": "rm -rf src-tauri/target"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "What I Would Forget",
+  "short_name": "WIWF",
+  "description": "A local-first cross-platform reminder app",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#6366F1",
+  "icons": []
+}

@@ -78,15 +78,15 @@ Where should user data live?
 
 | # | Question | Answer | Date |
 |---|----------|--------|------|
-| Q1 | Auth strategy | _pending_ | |
-| Q2 | Hosting | _pending_ | |
-| Q3 | App name | _pending_ | |
-| Q4 | Apple Developer | _pending_ | |
-| Q5 | Google Play | _pending_ | |
-| Q6 | Code signing | _pending_ | |
-| Q7 | Firebase | _pending_ | |
-| Q8 | Commit prefix | _pending_ | |
-| Q9 | Audience | _pending_ | |
-| Q10 | Priority system | _pending_ | |
-| Q11 | Data privacy | _pending_ | |
-| Q12 | Design prefs | _pending_ | |
+| Q1 | Auth strategy | **B** — Email/password + Google + Apple Sign-In | 2026-03-22 |
+| Q2 | Hosting | Local dev, Vercel free tier for web, portable Docker API | 2026-03-22 |
+| Q3 | App name | "RemindMe" for now, prep for change | 2026-03-22 |
+| Q4 | Apple Developer | Phase 2. Compile unsigned .dmg for Mac testing now | 2026-03-22 |
+| Q5 | Google Play | Phase 2 | 2026-03-22 |
+| Q6 | Code signing | Phase 2 | 2026-03-22 |
+| Q7 | Firebase | Needs to be created (new project) | 2026-03-22 |
+| Q8 | Commit prefix | Skipped | 2026-03-22 |
+| Q9 | Audience | Public release | 2026-03-22 |
+| Q10 | Priority system | Yes — user-selectable urgency (critical/normal/low) | 2026-03-22 |
+| Q11 | Data privacy | Server-side only (Option A) | 2026-03-22 |
+| Q12 | Design prefs | Soft/rounded UI, no fixed colors, best-in-market modern, ready to change | 2026-03-22 |

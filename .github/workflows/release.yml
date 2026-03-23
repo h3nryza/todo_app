@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  build-macos:
+    name: Release macOS
+    runs-on: macos-latest
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri
+      - run: npm ci
+      - run: npx tsc -p packages/shared/tsconfig.json
+      - run: cd packages/desktop && npx tauri build
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: packages/desktop/src-tauri/target/release/bundle/dmg/*.dmg
+
+  build-windows:
+    name: Release Windows
+    runs-on: windows-latest
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri
+      - run: npm ci
+      - run: npx tsc -p packages/shared/tsconfig.json
+      - run: cd packages/desktop && npx tauri build
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: packages/desktop/src-tauri/target/release/bundle/nsis/*.exe
+
+  build-linux:
+    name: Release Linux
+    runs-on: ubuntu-22.04
+    needs: create-release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: packages/desktop/src-tauri
+      - name: Install Linux deps
+        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
+      - run: npm ci
+      - run: npx tsc -p packages/shared/tsconfig.json
+      - run: cd packages/desktop && npx tauri build
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            packages/desktop/src-tauri/target/release/bundle/deb/*.deb
+            packages/desktop/src-tauri/target/release/bundle/appimage/*.AppImage

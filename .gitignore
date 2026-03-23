@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Turborepo
+.turbo/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database
+packages/api/prisma/*.db
+
+# Electron
+packages/desktop/dist/
+packages/desktop/release/
+
+# Mobile
+packages/mobile/.expo/
+packages/mobile/android/
+packages/mobile/ios/
+
+# Secrets - NEVER commit these
+*.pem
+*.key
+google-services.json
+GoogleService-Info.plist
+# Rust build
+target/
+packages/desktop/src-tauri/target/

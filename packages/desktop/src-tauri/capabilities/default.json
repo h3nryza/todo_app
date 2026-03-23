@@ -1,0 +1,26 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri/schema.json",
+  "identifier": "default",
+  "description": "Default permissions for What I Would Forget",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "sql:default",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-close",
+    "notification:default",
+    "notification:allow-is-permission-granted",
+    "notification:allow-request-permission",
+    "notification:allow-notify",
+    "notification:allow-register-action-types",
+    "dialog:default",
+    "dialog:allow-save",
+    "dialog:allow-open",
+    "fs:default",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "shell:allow-open"
+  ]
+}
