@@ -37,7 +37,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Run shared tests
-        run: npm run test -w @wiwf/shared --if-present
+        run: npx vitest run --config packages/shared/vitest.config.ts
 
   test-ui:
     name: Test UI Package
@@ -89,7 +89,10 @@ jobs:
         with:
           workspaces: packages/desktop/src-tauri
       - run: npm ci
-      - run: npx tsc -p packages/shared/tsconfig.json
+      - name: Build shared
+        run: npx tsc -p packages/shared/tsconfig.json
+      - name: Build UI assets
+        run: cd packages/ui && npx vite build
       - name: Build Tauri macOS
         run: cd packages/desktop && npx tauri build
       - uses: actions/upload-artifact@v4
@@ -113,7 +116,10 @@ jobs:
         with:
           workspaces: packages/desktop/src-tauri
       - run: npm ci
-      - run: npx tsc -p packages/shared/tsconfig.json
+      - name: Build shared
+        run: npx tsc -p packages/shared/tsconfig.json
+      - name: Build UI assets
+        run: cd packages/ui && npx vite build
       - name: Build Tauri Windows
         run: cd packages/desktop && npx tauri build
       - uses: actions/upload-artifact@v4
@@ -139,7 +145,10 @@ jobs:
       - name: Install Linux deps
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libssl-dev
       - run: npm ci
-      - run: npx tsc -p packages/shared/tsconfig.json
+      - name: Build shared
+        run: npx tsc -p packages/shared/tsconfig.json
+      - name: Build UI assets
+        run: cd packages/ui && npx vite build
       - name: Build Tauri Linux
         run: cd packages/desktop && npx tauri build
       - uses: actions/upload-artifact@v4
