@@ -137,7 +137,7 @@ export default function AppInitializer({ children }: Props) {
             }}
           />
           <p style={{ fontSize: '0.875rem', fontWeight: 500, color: '#6B7280' }}>
-            Loading What I Would Forget...
+            Loading Oh Right!...
           </p>
           {/* Inline keyframes for the spinner */}
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

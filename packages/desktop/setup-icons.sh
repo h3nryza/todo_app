@@ -19,12 +19,12 @@ def create_png(w, h, r, g, b):
             + chunk(b'IDAT', zlib.compress(raw))
             + chunk(b'IEND', b''))
 
-open('/tmp/wiwf-icon.png', 'wb').write(create_png(1024, 1024, 99, 102, 241))
-print('Created /tmp/wiwf-icon.png (1024x1024 indigo placeholder)')
+open('/tmp/ohright-icon.png', 'wb').write(create_png(1024, 1024, 99, 102, 241))
+print('Created /tmp/ohright-icon.png (1024x1024 indigo placeholder)')
 "
 
 echo ""
 echo "Now generate all required icon sizes by running:"
-echo "  npx tauri icon /tmp/wiwf-icon.png"
+echo "  npx tauri icon /tmp/ohright-icon.png"
 echo ""
 echo "This will populate src-tauri/icons/ with all required sizes."

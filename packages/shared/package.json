@@ -1,5 +1,5 @@
 {
-  "name": "@wiwf/shared",
+  "name": "@ohright/shared",
   "version": "0.0.1-alpha",
   "private": true,
   "main": "./dist/index.js",

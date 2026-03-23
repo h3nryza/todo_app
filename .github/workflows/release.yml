@@ -64,7 +64,7 @@ jobs:
         run: |
           bash scripts/generate-security-dashboard.sh shared sbom-shared.cdx.json vuln-shared.json security/shared
         env:
-          WIWF_VERSION: ${{ github.ref_name }}
+          OHRIGHT_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v4
         with:
           name: security-shared
@@ -114,7 +114,7 @@ jobs:
       - name: Generate macOS dashboard
         run: bash scripts/generate-security-dashboard.sh macos sbom-macos.cdx.json vuln-macos.json security/macos
         env:
-          WIWF_VERSION: ${{ github.ref_name }}
+          OHRIGHT_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v4
         with:
           name: security-macos
@@ -164,7 +164,7 @@ jobs:
         shell: bash
         run: bash scripts/generate-security-dashboard.sh windows sbom-windows.cdx.json vuln-windows.json security/windows
         env:
-          WIWF_VERSION: ${{ github.ref_name }}
+          OHRIGHT_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v4
         with:
           name: security-windows
@@ -222,7 +222,7 @@ jobs:
       - name: Generate Linux dashboard
         run: bash scripts/generate-security-dashboard.sh linux sbom-linux.cdx.json vuln-linux.json security/linux
         env:
-          WIWF_VERSION: ${{ github.ref_name }}
+          OHRIGHT_VERSION: ${{ github.ref_name }}
       - uses: actions/upload-artifact@v4
         with:
           name: security-linux

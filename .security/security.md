@@ -1,8 +1,8 @@
-# Security Policy — What I Would Forget
+# Security Policy — Oh Right
 
 ## Architecture
 
-**What I Would Forget** (WIWF) is a **local-first** desktop application. All data is stored locally on the user's device in an SQLite database. There is no remote server, no cloud sync, no API, and no user accounts.
+**Oh Right** (Oh Right) is a **local-first** desktop application. All data is stored locally on the user's device in an SQLite database. There is no remote server, no cloud sync, no API, and no user accounts.
 
 ### Data Flow
 
@@ -37,7 +37,7 @@ User → Tauri WebView (React UI) → Tauri IPC → SQLite (local file)
 If you discover a security vulnerability, please report it responsibly:
 
 1. **DO NOT** open a public GitHub issue
-2. Email: security@wiwf.app (or use GitHub's private vulnerability reporting)
+2. Email: security@ohright.app (or use GitHub's private vulnerability reporting)
 3. Include: description, reproduction steps, impact assessment
 4. We will acknowledge within 48 hours and provide a fix timeline within 7 days
 

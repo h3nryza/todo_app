@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { Category, CreateCategoryDto, UpdateCategoryDto } from '@wiwf/shared';
+import type { Category, CreateCategoryDto, UpdateCategoryDto } from '@ohright/shared';
 import {
   getCategories as fetchCategories,
   createCategory as createCategoryService,

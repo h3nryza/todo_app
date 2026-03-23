@@ -15,7 +15,7 @@ export async function getDatabase(): Promise<Database> {
   if (!db) {
     console.log('[DB] Loading SQLite database...');
     try {
-      db = await withTimeout(Database.load('sqlite:wiwf.db'), 10000, 'Database.load');
+      db = await withTimeout(Database.load('sqlite:ohright.db'), 10000, 'Database.load');
       console.log('[DB] Database loaded, running migrations...');
       await withTimeout(runMigrations(db), 10000, 'runMigrations');
       console.log('[DB] Migrations complete');

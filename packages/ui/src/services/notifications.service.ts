@@ -1,12 +1,12 @@
 /**
- * Notification service for What I Would Forget.
+ * Notification service for Oh Right.
  *
  * Uses a dual approach:
  * 1. Try @tauri-apps/plugin-notification (native OS notifications)
  * 2. Fall back to Web Notification API (works in Tauri's WebView on all platforms)
  *
- * macOS: System Settings → Notifications → What I Would Forget → Allow Notifications
- * Windows: Settings → System → Notifications → What I Would Forget
+ * macOS: System Settings → Notifications → Oh Right! → Allow Notifications
+ * Windows: Settings → System → Notifications → Oh Right
  * Linux: Requires libnotify
  */
 import {
@@ -14,7 +14,7 @@ import {
   requestPermission as tauriRequestPermission,
   sendNotification as tauriSendNotification,
 } from '@tauri-apps/plugin-notification';
-import type { Reminder } from '@wiwf/shared';
+import type { Reminder } from '@ohright/shared';
 
 const scheduledTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -145,17 +145,17 @@ export async function sendTestNotification(): Promise<{ success: boolean; messag
     let guide: string;
     if (platform.includes('mac')) {
       guide =
-        'macOS: Open System Settings → Notifications → What I Would Forget → turn on "Allow Notifications". Set alert style to Alerts or Banners. Enable Sound and Badge. Ensure Focus/Do Not Disturb is OFF.';
+        'macOS: Open System Settings → Notifications → Oh Right! → turn on "Allow Notifications". Set alert style to Alerts or Banners. Enable Sound and Badge. Ensure Focus/Do Not Disturb is OFF.';
     } else if (platform.includes('win')) {
-      guide = 'Windows: Settings → System → Notifications → What I Would Forget → ON';
+      guide = 'Windows: Settings → System → Notifications → Oh Right! → ON';
     } else {
-      guide = 'Check your system notification settings and ensure What I Would Forget is allowed.';
+      guide = 'Check your system notification settings and ensure Oh Right! is allowed.';
     }
     return { success: false, message: `Permission denied. ${guide}` };
   }
 
   const sent = fireNotification(
-    'What I Would Forget — Test',
+    'Oh Right! — Test',
     'Notifications are working! You should see this as a system notification.',
   );
 
@@ -169,6 +169,6 @@ export async function sendTestNotification(): Promise<{ success: boolean; messag
   return {
     success: false,
     message:
-      'Notification API call succeeded but no notification appeared. On macOS, check System Settings → Notifications → What I Would Forget and ensure Alerts/Banners are enabled (not "None"). Also ensure Focus mode is off.',
+      'Notification API call succeeded but no notification appeared. On macOS, check System Settings → Notifications → Oh Right! and ensure Alerts/Banners are enabled (not "None"). Also ensure Focus mode is off.',
   };
 }

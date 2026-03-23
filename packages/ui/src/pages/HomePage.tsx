@@ -18,7 +18,7 @@ import ReminderCard from '@/components/ReminderCard';
 import FAB from '@/components/FAB';
 import EmptyState from '@/components/EmptyState';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
-import type { Reminder, Category } from '@wiwf/shared';
+import type { Reminder, Category } from '@ohright/shared';
 
 /**
  * Home page — the main dashboard showing reminders grouped into

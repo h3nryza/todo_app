@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Home, Bell, FolderOpen, Settings, Plus, Star, FileText } from 'lucide-react';
+import { Home, FolderOpen, Settings, Plus, Star, FileText } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useCategories } from '@/hooks/useCategories';
 import { useAppStore } from '@/store/app.store';
@@ -29,19 +29,10 @@ export default function Sidebar() {
     >
       {/* Logo */}
       <div className="px-5 pt-6 pb-4">
-        <div className="flex items-center gap-2.5">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: 'var(--accent)' }}
-          >
-            <Bell size={16} className="text-white" />
-          </div>
-          <span
-            className="text-lg font-bold"
-            style={{ color: 'var(--text-primary)' }}
-            title="What I Would Forget"
-          >
-            WIWF
+        <div className="flex items-center gap-3">
+          <img src="/logo.png" alt="Oh Right!" className="w-16 h-16 rounded-xl" />
+          <span className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+            Oh Right!
           </span>
         </div>
       </div>
@@ -129,7 +120,7 @@ export default function Sidebar() {
       {/* Version footer */}
       <div className="px-5 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
         <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-          WIWF v0.0.1-alpha
+          Oh Right! v0.0.1-alpha
         </span>
       </div>
     </aside>

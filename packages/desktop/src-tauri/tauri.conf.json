@@ -1,18 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-cli/schema.json",
-  "productName": "What I Would Forget",
+  "productName": "Oh Right!",
   "version": "0.0.1",
-  "identifier": "app.wiwf.desktop",
+  "identifier": "app.ohright.desktop",
   "build": {
     "frontendDist": "../../ui/dist",
     "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "npm run dev -w @wiwf/ui",
+    "beforeDevCommand": "npm run dev -w @ohright/ui",
     "beforeBuildCommand": ""
   },
   "app": {
     "windows": [
       {
-        "title": "What I Would Forget",
+        "title": "Oh Right!",
         "width": 1100,
         "height": 750,
         "minWidth": 800,

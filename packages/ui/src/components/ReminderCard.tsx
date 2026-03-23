@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, CheckCircle2, SkipForward, AlarmClock } from 'lucide-react';
 import { clsx } from 'clsx';
-import type { Reminder, Category } from '@wiwf/shared';
-import { formatRelativeTime, isOverdue, SNOOZE_OPTIONS } from '@wiwf/shared';
+import type { Reminder, Category } from '@ohright/shared';
+import { formatRelativeTime, isOverdue, SNOOZE_OPTIONS } from '@ohright/shared';
 import { format, isToday } from 'date-fns';
 import { completeReminder, snoozeReminder, skipReminder } from '@/services/reminders.service';
 

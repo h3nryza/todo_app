@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "🚀 Setting up What I Would Forget development environment..."
+echo "🚀 Setting up Oh Right! development environment..."
 
 # Check prerequisites
 command -v node >/dev/null 2>&1 || { echo "❌ Node.js 20+ required. Install from https://nodejs.org"; exit 1; }
@@ -38,15 +38,15 @@ npm install
 
 # Build shared package
 echo "🔨 Building shared package..."
-npm run build -w @wiwf/shared
+npm run build -w @ohright/shared
 
 # Run database migrations
 echo "🗄️ Running database migrations..."
-npm run db:migrate -w @wiwf/api
+npm run db:migrate -w @ohright/api
 
 # Seed database (optional)
 echo "🌱 Seeding database..."
-npm run db:seed -w @wiwf/api || echo "⚠️ Seed skipped (may already exist)"
+npm run db:seed -w @ohright/api || echo "⚠️ Seed skipped (may already exist)"
 
 echo ""
 echo "✅ Setup complete! Run these commands:"

@@ -1,16 +1,16 @@
 {
-  "name": "wiwf",
+  "name": "ohright",
   "version": "0.0.1-alpha",
   "private": true,
-  "description": "What I Would Forget — local-first, cross-platform reminder app",
+  "description": "Oh Right! — local-first, cross-platform reminder app",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @wiwf/ui",
-    "dev:desktop": "npm run tauri:dev -w @wiwf/desktop",
+    "dev": "npm run dev -w @ohright/ui",
+    "dev:desktop": "npm run tauri:dev -w @ohright/desktop",
     "build": "turbo run build",
-    "build:desktop": "npm run tauri:build -w @wiwf/desktop",
+    "build:desktop": "npm run tauri:build -w @ohright/desktop",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "type-check": "turbo run type-check",

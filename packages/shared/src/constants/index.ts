@@ -1,7 +1,7 @@
 import type { ReminderPriority } from '../types';
 
 /** Single source of truth for the application name */
-export const APP_NAME = 'What I Would Forget' as const;
+export const APP_NAME = 'Oh Right!' as const;
 
 export interface DefaultCategory {
   name: string;

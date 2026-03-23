@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate app icons for "What I Would Forget" at all required sizes.
+Generate app icons for "Oh Right!" at all required sizes.
 Uses Pillow to create a gradient background with a brain/lightbulb symbol.
 """
 import os
@@ -108,7 +108,7 @@ def create_ico(icon_512: Image.Image, path: str):
 
 
 if __name__ == '__main__':
-    print("Generating icons for 'What I Would Forget'...")
+    print("Generating icons for 'Oh Right!'...")
     icon = create_icon(1024)
 
     # Standard Tauri icon sizes
