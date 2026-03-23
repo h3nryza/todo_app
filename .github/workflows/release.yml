@@ -65,7 +65,7 @@ jobs:
           bash scripts/generate-security-dashboard.sh shared sbom-shared.cdx.json vuln-shared.json security/shared
         env:
           OHRIGHT_VERSION: ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: security-shared
           path: security/shared/
@@ -115,11 +115,11 @@ jobs:
         run: bash scripts/generate-security-dashboard.sh macos sbom-macos.cdx.json vuln-macos.json security/macos
         env:
           OHRIGHT_VERSION: ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: security-macos
           path: security/macos/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-macos
           path: packages/desktop/src-tauri/target/release/bundle/dmg/*.dmg
@@ -165,11 +165,11 @@ jobs:
         run: bash scripts/generate-security-dashboard.sh windows sbom-windows.cdx.json vuln-windows.json security/windows
         env:
           OHRIGHT_VERSION: ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: security-windows
           path: security/windows/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-windows
           path: |
@@ -223,11 +223,11 @@ jobs:
         run: bash scripts/generate-security-dashboard.sh linux sbom-linux.cdx.json vuln-linux.json security/linux
         env:
           OHRIGHT_VERSION: ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: security-linux
           path: security/linux/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-linux
           path: |
