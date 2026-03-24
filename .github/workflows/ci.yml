@@ -69,7 +69,7 @@ jobs:
         run: npx tsc -p packages/shared/tsconfig.json
       - name: Build UI
         run: cd packages/ui && npx vite build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ui-dist
           path: packages/ui/dist/
@@ -98,7 +98,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: packages/desktop
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-macos
           path: packages/desktop/src-tauri/target/release/bundle/dmg/*.dmg
