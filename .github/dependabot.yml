@@ -21,7 +21,7 @@ updates:
     commit-message:
       prefix: "chore(deps):"
 
-  # Rust/Cargo dependencies
+  # Rust/Cargo dependencies for Tauri desktop app
   - package-ecosystem: cargo
     directory: /packages/desktop/src-tauri
     schedule:

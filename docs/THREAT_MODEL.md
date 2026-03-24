@@ -1,62 +1,56 @@
-# RemindMe Threat Model
+# Oh Right! Threat Model
 
-This document provides a STRIDE-based threat model for the RemindMe cross-platform reminder application.
+> **Updated 2026-03-23:** Architecture changed to local-first. Server-side threats (API flooding, SQL injection, JWT theft) are no longer applicable. Remaining threats focus on local data security, app integrity, and supply chain.
+
+This document provides a STRIDE-based threat model for the Oh Right! cross-platform reminder application.
 
 ## System Overview
 
-RemindMe is a cross-platform reminder application consisting of:
+Oh Right! is a local-first cross-platform reminder application consisting of:
 
-- **API Server** (NestJS) -- REST API handling authentication, reminder CRUD, and push notification scheduling
-- **PostgreSQL** -- Primary data store for users, reminders, and categories
-- **Redis** -- Session cache, rate limiting state, and BullMQ job queue for scheduled notifications
-- **Web Client** (React PWA) -- Browser-based frontend with offline support
-- **Desktop Client** (Electron) -- macOS desktop application wrapping the web client
-- **Push Notification Services** -- Web Push (VAPID) for browser notifications
+- **Desktop App** (Tauri v2) -- Native desktop application for macOS, Windows, and Linux
+- **UI Layer** (React) -- Frontend rendered in the Tauri webview
+- **Shared Package** -- Types, schemas, and utilities shared across packages
+- **SQLite** -- Local database for reminders, categories, and settings (via Tauri plugin)
+
+There is no server component. All data is stored locally on the user's machine.
 
 ## Data Flow Diagram
 
 ```mermaid
 flowchart TB
-    subgraph Internet
+    subgraph UserMachine["User's Machine"]
         User([User])
-        Browser[Web Browser / PWA]
-        Desktop[Desktop App - Electron]
-        OAuth[Google OAuth Provider]
+        TauriApp[Tauri Desktop App]
+        WebView[React UI<br/>Webview]
+        SQLite[(SQLite Database<br/>Local File)]
+        FileSystem[Local Filesystem<br/>Export/Import]
     end
 
-    subgraph TrustBoundary["Trust Boundary — Internal Network"]
-        API[API Server<br/>NestJS :3001]
-        PG[(PostgreSQL :5432)]
-        Redis[(Redis :6379)]
-        Queue[BullMQ Worker]
+    subgraph BuildTime["Build-time Dependencies"]
+        npm[npm Registry]
+        Crates[crates.io Registry]
+        GitHub[GitHub Releases<br/>Auto-update]
     end
 
-    subgraph External["External Services"]
-        WebPush[Web Push Service<br/>FCM / Mozilla Push]
-    end
-
-    User --> Browser
-    User --> Desktop
-    Browser -- "HTTPS" --> API
-    Desktop -- "HTTPS" --> API
-    API -- "OAuth 2.0" --> OAuth
-    API -- "Prisma ORM" --> PG
-    API -- "ioredis" --> Redis
-    API -- "Enqueue" --> Queue
-    Queue -- "Read jobs" --> Redis
-    Queue -- "Web Push Protocol" --> WebPush
-    WebPush -- "Push notification" --> Browser
+    User --> TauriApp
+    TauriApp --> WebView
+    WebView -- "IPC Commands" --> TauriApp
+    TauriApp -- "Read/Write" --> SQLite
+    TauriApp -- "Export/Import" --> FileSystem
+    TauriApp -. "Check for updates" .-> GitHub
+    npm -. "Build-time" .-> WebView
+    Crates -. "Build-time" .-> TauriApp
 ```
 
 ## Trust Boundaries
 
 | Boundary | Description |
 |----------|-------------|
-| **Client <-> API** | All client-to-server communication crosses the internet. Must use HTTPS. Input is untrusted. |
-| **API <-> Database** | Internal network. API is the sole accessor. Connections use credentials. |
-| **API <-> Redis** | Internal network. Used for caching, rate limits, and job queues. |
-| **API <-> External OAuth** | Outbound to Google. Tokens validated server-side. |
-| **API <-> Push Services** | Outbound to web push endpoints. VAPID-signed payloads. |
+| **User <-> App** | User interacts with the app through the native window. Input is validated by Zod schemas. |
+| **Webview <-> Tauri Core** | IPC bridge between the frontend (untrusted web context) and the Rust backend. Commands are explicitly exposed. |
+| **App <-> Filesystem** | The app reads/writes SQLite data and JSON exports to the local filesystem. |
+| **App <-> Update Server** | The app may check GitHub Releases for updates. Downloads must be signed. |
 
 ## STRIDE Analysis
 
@@ -64,92 +58,82 @@ flowchart TB
 
 | Threat | Component | Risk | Mitigation |
 |--------|-----------|------|------------|
-| JWT token theft via XSS | Web Client | High | httpOnly cookies prevent JavaScript access to tokens; Content Security Policy blocks inline scripts |
-| Session hijacking via network interception | Client <-> API | High | HTTPS enforced in production; HSTS headers; Secure cookie flag |
-| OAuth token replay | API <-> OAuth | Medium | State parameter validation; short-lived authorization codes; server-side token exchange |
-| Refresh token theft | API | High | Refresh token rotation — each token is single-use; old tokens invalidate the family on reuse detection |
-| Credential stuffing on login | API /auth/login | Medium | Rate limiting (10/min on auth endpoints); bcrypt with cost factor 12 |
+| Malicious app impersonation | Desktop App | Medium | Code signing for distributed builds; users should only download from official GitHub Releases |
+| Tampered auto-update | Update mechanism | High | Tauri updater verifies signatures; updates served over HTTPS from GitHub Releases |
 
 ### Tampering
 
 | Threat | Component | Risk | Mitigation |
 |--------|-----------|------|------------|
-| API request parameter manipulation | API | High | Zod schema validation on all inputs; class-validator on DTOs; reject unexpected fields |
-| SQL injection | API <-> PostgreSQL | Critical | Prisma ORM uses parameterized queries exclusively; no raw SQL |
-| XSS in reminder titles, notes, or category names | Web Client | High | React auto-escapes output by default; CSP headers block inline scripts; input length limits enforced |
-| CSRF on state-changing endpoints | API | Medium | SameSite=Strict cookies; Origin header validation |
-| Tampered push notification payloads | Queue <-> Push Service | Low | VAPID signing ensures payload integrity; push services verify signatures |
+| Direct modification of SQLite file | Local filesystem | Medium | File permissions restrict access to the current user; app uses the OS-standard app data directory |
+| IPC command injection from webview | Webview <-> Tauri | Medium | Tauri v2 capabilities system restricts which commands the webview can invoke; input validated with Zod schemas |
+| Tampered JSON import file | Import feature | Medium | Import data validated against Zod schemas before processing; malformed data rejected |
+| Modified app binary | Desktop App | Medium | Code signing ensures binary integrity; unsigned builds produce OS warnings |
 
 ### Repudiation
 
 | Threat | Component | Risk | Mitigation |
 |--------|-----------|------|------------|
-| User denies modifying a reminder | API | Low | `updatedAt` timestamps on all records; completion records with timestamps |
-| Unauthorized API calls without audit trail | API | Medium | Structured request logging via Pino with request ID, user ID, method, and path; no sensitive data in logs |
-| Deleted reminders with no record | API | Low | Soft-delete pattern preserves records; completion history maintained separately |
+| User denies modifying a reminder | Local app | Low | Local-only app; no multi-user scenario; `updatedAt` timestamps maintained on all records |
 
 ### Information Disclosure
 
 | Threat | Component | Risk | Mitigation |
 |--------|-----------|------|------------|
-| User data exposure via IDOR | API | Critical | Ownership checks on every query — all data access filtered by authenticated user ID |
-| Token leakage in error responses or logs | API | High | Centralized exception filter strips internal details in production; Pino configured to redact authorization headers |
-| Stack traces in production errors | API | Medium | `NODE_ENV=production` returns structured error responses with no stack traces |
-| Database credentials in environment | Infrastructure | High | Environment variables only; `.env` files in `.gitignore`; no secrets in Docker images |
-| Sensitive data in browser storage | Web Client | Medium | No tokens in localStorage; httpOnly cookies only; IndexedDB used only for offline reminder cache |
+| SQLite database readable by other local processes | Local filesystem | Medium | Database stored in OS app data directory with user-level file permissions; sensitive data should not be stored in reminders |
+| Exported JSON contains sensitive reminder data | Export feature | Medium | User explicitly triggers export; export file location chosen by user; no automatic sharing |
+| Webview dev tools exposing app state | Desktop App | Low | Dev tools disabled in production builds |
+| Crash reports leaking data | Desktop App | Low | No telemetry or crash reporting in v1; if added, must be opt-in with data minimization |
 
 ### Denial of Service
 
 | Threat | Component | Risk | Mitigation |
 |--------|-----------|------|------------|
-| API flooding | API | High | Global rate limit: 100 requests/min per IP via `@nestjs/throttler` |
-| Brute force on authentication | API /auth | High | Auth-specific rate limit: 10 requests/min per IP |
-| Expensive database queries | API <-> PostgreSQL | Medium | Pagination on all list endpoints (max 100 per page); query complexity limited by Prisma schema |
-| Large import payloads | API | Medium | Request body size limit (1MB); import batch size limits; validation before processing |
-| Redis memory exhaustion | Redis | Medium | TTL on all cached keys; maxmemory policy configured; BullMQ job retention limits |
+| Corrupted SQLite database | Local storage | Medium | SQLite WAL mode for crash resilience; future: periodic backup of database file |
+| Extremely large import file | Import feature | Low | Import size validated; batch processing with limits |
+| Resource exhaustion from excessive reminders | Desktop App | Low | Pagination in UI; SQLite handles large datasets efficiently |
 
 ### Elevation of Privilege
 
 | Threat | Component | Risk | Mitigation |
 |--------|-----------|------|------------|
-| Accessing other users' reminders | API | Critical | JWT-scoped user ID; every database query includes `WHERE userId = authenticatedUser.id` |
-| Modifying other users' categories | API | Critical | Ownership validation middleware; Prisma queries always scoped to user |
-| Admin endpoint access | API | Low | No admin endpoints in v1; future admin role will require separate JWT claim and middleware |
-| Container escape | Infrastructure | Low | Non-root container user (uid 1001); minimal Alpine base image; no privileged mode |
+| Webview escaping sandbox to access Tauri APIs | Webview <-> Tauri | High | Tauri v2 capabilities system; only explicitly allowed commands are accessible from webview |
+| Malicious Tauri plugin | Build-time | Medium | Only use well-maintained, audited Tauri plugins; pin dependency versions |
+| Supply chain attack via npm/cargo dependency | Build-time | Medium | Dependabot monitoring; npm audit and cargo audit in CI; lockfile pinning |
 
 ## Attack Surface Analysis
 
 | Surface | Exposure | Controls |
 |---------|----------|----------|
-| REST API endpoints | Public internet | Authentication required (except /auth, /health); rate limiting; input validation |
-| Web client (SPA) | Public internet | CSP headers; Subresource Integrity; no inline scripts |
-| PostgreSQL | Internal network only | Credentials required; no public binding; connection pooling |
-| Redis | Internal network only | AUTH enabled in production; no public binding |
-| Docker images | GitHub Container Registry | Trivy scanned; non-root user; minimal base image |
-| npm dependencies | Build time | Dependabot; npm audit in CI; dependency review on PRs |
+| Local SQLite database | Local filesystem (user-level access) | OS file permissions; app data directory |
+| Tauri IPC bridge | Webview to Rust core | Capabilities system; Zod validation on all commands |
+| JSON import/export | User-initiated file operations | Schema validation; size limits |
+| Auto-update channel | HTTPS to GitHub Releases | Signature verification; HTTPS transport |
+| npm dependencies | Build-time only | Dependabot; npm audit in CI; lockfile |
+| Cargo dependencies | Build-time and runtime | Dependabot; cargo audit in CI; lockfile |
 
 ## Security Controls Summary
 
 ```mermaid
 flowchart LR
     subgraph Prevention
-        A[Input Validation<br/>Zod + class-validator]
-        B[Parameterized Queries<br/>Prisma ORM]
-        C[Authentication<br/>JWT + OAuth]
-        D[Rate Limiting<br/>Throttler]
+        A[Input Validation<br/>Zod Schemas]
+        B[IPC Sandboxing<br/>Tauri Capabilities]
+        C[Code Signing<br/>Build Pipeline]
+        D[Dependency Pinning<br/>Lockfiles]
     end
 
     subgraph Detection
         E[CodeQL SAST]
         F[Trivy Scanning]
         G[npm audit]
-        H[Request Logging<br/>Pino]
+        H[cargo audit]
     end
 
     subgraph Response
         I[Dependabot<br/>Auto-updates]
-        J[Security Headers<br/>Helmet + CSP]
-        K[Error Filtering<br/>No info leakage]
+        J[Signed Updates<br/>Tauri Updater]
+        K[SBOM Generation<br/>Supply Chain Visibility]
     end
 ```
 
@@ -159,19 +143,17 @@ These risks are acknowledged and accepted for v1:
 
 | Risk | Severity | Rationale |
 |------|----------|-----------|
-| No email verification on signup | Medium | Planned for v1.1; current impact limited since no email-based features exist |
-| No account lockout after failed attempts | Medium | Rate limiting provides partial mitigation; full lockout planned for v1.1 |
-| No encryption at rest for reminder content | Low | Reminder data is not considered highly sensitive (no financial/health data); database access is restricted |
-| Single-region deployment | Medium | Acceptable for initial user base; multi-region planned for scale phase |
-| No WAF in front of API | Medium | Rate limiting and input validation provide baseline protection; WAF to be added when traffic warrants it |
-| Push notification content visible to push service | Low | Notification payloads contain minimal data (title only); no sensitive reminder content in push payload |
-| No MFA support | Medium | OAuth (Google) provides delegated MFA; native MFA planned for v1.2 |
+| No encryption at rest for SQLite database | Medium | Reminder data is not considered highly sensitive; OS file permissions provide baseline protection; SQLCipher integration planned for future release |
+| No backup/restore mechanism | Medium | SQLite file can be manually backed up; automated backup planned for v1.1 |
+| Unsigned development builds | Low | Only affects local development; release builds will be code-signed |
+| No telemetry for detecting issues | Low | Privacy-first approach; opt-in diagnostics may be added later |
+| Local data not wiped on app uninstall | Low | Standard behavior for desktop apps; user can manually delete app data directory |
 
 ## Review Schedule
 
 This threat model should be reviewed:
 
 - Before each major release
-- When new components are added (e.g., mobile app, new OAuth providers)
-- When the deployment architecture changes
+- When new features are added (e.g., sync, cloud backup, sharing)
+- When the architecture changes (e.g., adding a server component)
 - Quarterly at minimum
