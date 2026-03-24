@@ -54,7 +54,7 @@ jobs:
         with:
           projectPath: packages/desktop
           args: --target aarch64-apple-darwin
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-macos-arm64
           path: packages/desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
@@ -86,7 +86,7 @@ jobs:
         with:
           projectPath: packages/desktop
           args: --target x86_64-apple-darwin
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-macos-x64
           path: packages/desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
@@ -115,7 +115,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: packages/desktop
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-windows
           path: |
@@ -148,7 +148,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           projectPath: packages/desktop
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-linux
           path: |
