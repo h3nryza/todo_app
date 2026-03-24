@@ -16,7 +16,7 @@ jobs:
     name: SCA - npm Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -30,7 +30,7 @@ jobs:
     name: SCA - Cargo Audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-audit
         run: cargo install cargo-audit
@@ -38,23 +38,11 @@ jobs:
         run: cd packages/desktop/src-tauri && cargo audit
         continue-on-error: true
 
-  secrets-scan:
-    name: Secrets Detection
+  trivy-fs:
+    name: Trivy Filesystem Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: TruffleHog secrets scan
-        uses: trufflesecurity/trufflehog@main
-        with:
-          extra_args: --only-verified
-
-  trivy-vuln:
-    name: Trivy Vulnerability Scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -68,52 +56,23 @@ jobs:
           format: table
           severity: CRITICAL,HIGH,MEDIUM
 
-  trivy-sbom:
-    name: SBOM Generation
+  secrets-scan:
+    name: Secrets Detection
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
         with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - name: Generate CycloneDX SBOM
-        uses: aquasecurity/trivy-action@master
+          fetch-depth: 0
+      - name: TruffleHog secrets scan
+        uses: trufflesecurity/trufflehog@main
         with:
-          scan-type: fs
-          scan-ref: .
-          format: cyclonedx
-          output: sbom.cdx.json
-      - name: Generate SPDX SBOM
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: spdx-json
-          output: sbom.spdx.json
-      - uses: actions/upload-artifact@v7
-        with:
-          name: sbom
-          path: |
-            sbom.cdx.json
-            sbom.spdx.json
-          retention-days: 90
+          extra_args: --only-verified
 
-  dependency-tree:
-    name: Dependency Tree
+  dependency-review:
+    name: Dependency Review
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-      - run: npm ci
-      - name: Generate npm dependency tree
-        run: npm ls --all --json > npm-dep-tree.json 2>/dev/null || true
-      - uses: actions/upload-artifact@v7
-        with:
-          name: dependency-trees
-          path: npm-dep-tree.json
-          retention-days: 90
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
