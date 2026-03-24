@@ -53,8 +53,16 @@ packages/mobile/ios/
 # Secrets - NEVER commit these
 *.pem
 *.key
+*.p12
+*.pfx
 google-services.json
 GoogleService-Info.plist
+
+# Database dumps
+*.sql
+*.dump
+*.sqlite
+*.db
 # Rust build
 target/
 packages/desktop/src-tauri/target/

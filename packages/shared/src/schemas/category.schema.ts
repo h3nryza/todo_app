@@ -7,7 +7,7 @@ const hexColorSchema = z
 export const createCategorySchema = z.object({
   name: z.string().min(1, 'Name is required').max(50, 'Name must be at most 50 characters'),
   color: hexColorSchema,
-  icon: z.string().min(1, 'Icon is required'),
+  icon: z.string().min(1, 'Icon is required').max(100, 'Icon identifier too long'),
 });
 
 export const updateCategorySchema = z.object({

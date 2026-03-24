@@ -33,9 +33,19 @@ export const scheduleConfigSchema = z
     type: scheduleTypeSchema,
     interval: z.number().int().positive().optional(),
     daysOfWeek: z.array(z.number().int().min(-3).max(6)).min(1).optional(),
-    dayOfMonth: z.number().int().min(-1).max(31).optional(),
+    dayOfMonth: z
+      .number()
+      .int()
+      .min(-1)
+      .max(31)
+      .refine((n) => n === -1 || (n >= 1 && n <= 31), 'dayOfMonth must be 1-31 or -1 for last day')
+      .optional(),
     weekOfMonth: z.number().int().min(-1).max(5).optional(),
-    cronExpression: z.string().optional(),
+    cronExpression: z
+      .string()
+      .max(120, 'Cron expression too long')
+      .regex(/^(\S+\s+){4,5}\S+$/, 'Invalid cron expression format')
+      .optional(),
     startDate: z.string().datetime({ message: 'startDate must be a valid ISO 8601 date' }),
     endDate: z.string().datetime({ message: 'endDate must be a valid ISO 8601 date' }).optional(),
     timeOfDay: timeOfDaySchema,
@@ -119,7 +129,7 @@ export const createReminderSchema = z.object({
   categoryId: z.string().uuid('categoryId must be a valid UUID').optional(),
   schedule: scheduleConfigSchema,
   priority: prioritySchema,
-  notes: z.string().optional(),
+  notes: z.string().max(10000, 'Notes must be at most 10000 characters').optional(),
 });
 
 export const updateReminderSchema = z.object({
@@ -129,7 +139,7 @@ export const updateReminderSchema = z.object({
   schedule: scheduleConfigSchema.optional(),
   status: z.enum(['active', 'paused', 'completed', 'archived']).optional(),
   priority: z.enum(['high', 'medium', 'low', 'info']).optional(),
-  notes: z.string().nullish(),
+  notes: z.string().max(10000).nullish(),
 });
 
 export type CreateReminderInput = z.infer<typeof createReminderSchema>;
