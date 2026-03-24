@@ -1,0 +1,97 @@
+name: Release Mobile
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  # ─── Pre-release checks ─────────────────────────────────────────
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Build shared
+        run: npx tsc -p packages/shared/tsconfig.json
+      - name: Run unit tests
+        run: npx vitest run --config packages/shared/vitest.config.ts
+
+  # ─── Android ────────────────────────────────────────────────────
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Build shared
+        run: npx tsc -p packages/shared/tsconfig.json
+
+      # Preview build: produces an APK for testing / sideloading
+      - name: Build Android APK (preview)
+        working-directory: packages/mobile
+        run: eas build -p android --profile preview --non-interactive --no-wait
+
+      # Production build: produces an AAB for Google Play
+      - name: Build Android AAB (production)
+        working-directory: packages/mobile
+        run: eas build -p android --profile production --non-interactive --no-wait
+
+      # Optional: auto-submit to Play Store (uncomment when ready)
+      # - name: Submit to Google Play
+      #   working-directory: packages/mobile
+      #   run: eas submit -p android --latest --non-interactive
+
+  # ─── iOS ────────────────────────────────────────────────────────
+  build-ios:
+    name: Build iOS
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - run: npm ci
+
+      - name: Build shared
+        run: npx tsc -p packages/shared/tsconfig.json
+
+      # Production build: produces an IPA for App Store / TestFlight
+      - name: Build iOS IPA (production)
+        working-directory: packages/mobile
+        run: eas build -p ios --profile production --non-interactive --no-wait
+
+      # Optional: auto-submit to App Store / TestFlight (uncomment when ready)
+      # - name: Submit to App Store
+      #   working-directory: packages/mobile
+      #   run: eas submit -p ios --latest --non-interactive

@@ -1,6 +1,6 @@
 # Oh Right! — Current Build Process & Cloud Setup
 
-> How to build locally, set up externalized cloud builds, and where every secret goes.
+> How to build locally, set up externalized cloud builds, sign apps for distribution, and where every secret goes.
 
 ---
 
@@ -9,8 +9,9 @@
 1. [Current Local Build Process](#1-current-local-build-process)
 2. [Externalize Desktop Builds (GitHub Actions)](#2-externalize-desktop-builds-github-actions)
 3. [Externalize Mobile Builds (EAS)](#3-externalize-mobile-builds-eas)
-4. [Complete Secrets Reference](#4-complete-secrets-reference)
-5. [Day-to-Day Workflow](#5-day-to-day-workflow)
+4. [Code Signing — Step by Step](#4-code-signing--step-by-step)
+5. [Complete Secrets Reference](#5-complete-secrets-reference)
+6. [Day-to-Day Workflow](#6-day-to-day-workflow)
 
 ---
 
@@ -93,75 +94,13 @@ git push --tags
 # 5. Download from: https://github.com/h3nryza/todo_app/releases
 ```
 
-### GitHub Actions secrets for SIGNED builds
-
-Go to: **GitHub repo → Settings → Secrets and variables → Actions → New repository secret**
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  GITHUB ACTIONS SECRETS                                             │
-│  (Settings > Secrets and variables > Actions > New repository secret)│
-├─────────────────────────────────┬───────────────────────────────────┤
-│  Secret Name                    │  What / How to Get It             │
-├─────────────────────────────────┼───────────────────────────────────┤
-│                                 │                                   │
-│  --- macOS Signing ---          │                                   │
-│                                 │                                   │
-│  APPLE_CERTIFICATE              │  Base64-encoded .p12 certificate  │
-│                                 │  How: Open Keychain Access →      │
-│                                 │  export "Developer ID Application"│
-│                                 │  cert as .p12 → run:              │
-│                                 │  base64 -i cert.p12 | pbcopy     │
-│                                 │  Paste the clipboard contents.    │
-│                                 │                                   │
-│  APPLE_CERTIFICATE_PASSWORD     │  The password you set when        │
-│                                 │  exporting the .p12 file          │
-│                                 │                                   │
-│  APPLE_SIGNING_IDENTITY         │  Full certificate name, e.g.:    │
-│                                 │  "Developer ID Application:       │
-│                                 │   Henry (XXXXXXXXXX)"             │
-│                                 │  Find it: Keychain Access →       │
-│                                 │  My Certificates → copy the name  │
-│                                 │                                   │
-│  --- macOS Notarization ---     │                                   │
-│                                 │                                   │
-│  APPLE_ID                       │  Your Apple ID email              │
-│                                 │  e.g.: henry@example.com          │
-│                                 │                                   │
-│  APPLE_PASSWORD                 │  App-specific password (NOT your  │
-│                                 │  Apple ID password). Generate at: │
-│                                 │  appleid.apple.com → Sign-In &    │
-│                                 │  Security → App-Specific Passwords│
-│                                 │                                   │
-│  APPLE_TEAM_ID                  │  10-character Team ID. Find at:   │
-│                                 │  developer.apple.com/account →    │
-│                                 │  Membership Details               │
-│                                 │                                   │
-│  --- Windows Signing ---        │                                   │
-│                                 │                                   │
-│  TAURI_SIGNING_PRIVATE_KEY      │  Base64-encoded signing key.      │
-│                                 │  From your code signing cert      │
-│                                 │  provider (DigiCert, Sectigo).    │
-│                                 │  Not needed until you distribute  │
-│                                 │  publicly on Windows.             │
-│                                 │                                   │
-│  --- Mobile (EAS) ---           │                                   │
-│                                 │                                   │
-│  EXPO_TOKEN                     │  See Section 3 below              │
-│                                 │                                   │
-├─────────────────────────────────┼───────────────────────────────────┤
-│  GITHUB_TOKEN                   │  Automatic — GitHub provides this │
-│                                 │  No setup needed.                 │
-└─────────────────────────────────┴───────────────────────────────────┘
-```
-
-> **You don't need ANY of these secrets for unsigned builds.** The CI will still build and upload unsigned binaries to GitHub Releases. Signing is only needed to avoid OS warnings when users install the app.
+> **You don't need signing secrets for unsigned builds.** CI will still build and upload unsigned binaries. Signing is only needed to avoid OS warnings when users install.
 
 ---
 
 ## 3. Externalize Mobile Builds (EAS)
 
-### One-time setup (do this once)
+### One-time setup
 
 ```bash
 # Step 1: Install EAS CLI globally
@@ -169,179 +108,323 @@ npm install -g eas-cli
 
 # Step 2: Create a free Expo account
 eas login
-#   → Creates account at expo.dev if you don't have one
 #   → Free tier: 30 builds/month
 
 # Step 3: Link the project
 cd packages/mobile
 eas init
-#   → This creates/links an Expo project ID
-#   → Writes the project ID into app.json under "expo.extra.eas.projectId"
+#   → Creates/links an Expo project ID
+#   → Writes project ID into app.json
 
-# Step 4: Verify it worked
+# Step 4: Verify
 eas whoami
-#   → Should show your username
 
-# Step 5: Generate a personal access token for CI (optional, for automated builds)
+# Step 5: Generate access token for CI
 #   → Go to: https://expo.dev/accounts/[your-username]/settings/access-tokens
-#   → Click "Create Token"
-#   → Name: "github-actions"
-#   → Copy the token
-#   → Add to GitHub secrets as: EXPO_TOKEN
+#   → Click "Create Token", name: "github-actions"
+#   → Copy token → add to GitHub secrets as: EXPO_TOKEN
 ```
 
-### Build Android APK (for testing)
+### Build commands
 
 ```bash
 cd packages/mobile
 
-# Build in the cloud — produces an APK you can install on any Android phone
+# Android APK (testing)
 eas build -p android --profile preview
 
-# EAS shows a URL when done:
-#   https://expo.dev/artifacts/eas/xxxxx.apk
-# Download it → transfer to phone → install
-```
-
-### Build Android AAB (for Google Play)
-
-```bash
+# Android AAB (Play Store)
 eas build -p android --profile production
 
-# Produces an AAB file → upload to Google Play Console
-# Google Play Developer account: $25 one-time at play.google.com/console
-```
-
-### Build iOS (for TestFlight / App Store)
-
-```bash
-# EAS handles provisioning profiles + signing automatically
-# Just needs your Apple Developer account connected
+# iOS (App Store / TestFlight)
 eas build -p ios --profile production
 
-# Submit directly to TestFlight:
-eas submit -p ios
-
-# Apple Developer account: $99/year at developer.apple.com
+# Submit to stores
+eas submit -p android    # → Google Play
+eas submit -p ios        # → App Store / TestFlight
 ```
 
-### Connect Apple Developer account to EAS
+### Mobile builds run in CI automatically
 
-```bash
-# EAS will prompt for your Apple ID on first iOS build
-# Or pre-configure:
-eas credentials -p ios
-#   → Choose "Log in to your Apple Developer account"
-#   → Enter Apple ID + password
-#   → EAS manages certificates and profiles for you
-```
+The workflow `.github/workflows/release-mobile.yml` triggers on the same `v*` tags as desktop. When you push a tag, **both desktop and mobile build in parallel**:
 
-### EAS config reference
-
-The file `packages/mobile/eas.json` defines build profiles:
-
-```
-┌──────────────────────────────────────────────────────────────┐
-│  Profile        │ What it builds        │ When to use        │
-├─────────────────┼───────────────────────┼────────────────────┤
-│  development    │ Dev client (debug)    │ Local dev testing   │
-│  preview        │ APK (Android)         │ Share with testers  │
-│  production     │ AAB (Android) / IPA   │ Store submission    │
-└─────────────────┴───────────────────────┴────────────────────┘
-```
-
-### Automate mobile builds in CI (optional)
-
-Add to `.github/workflows/release-mobile.yml` when ready:
-
-```yaml
-name: Release Mobile
-
-on:
-  push:
-    tags:
-      - "v*"
-
-jobs:
-  build-android:
-    name: Build Android
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      - run: npm ci
-      - run: npx tsc -p packages/shared/tsconfig.json
-      - name: Build Android
-        working-directory: packages/mobile
-        run: eas build -p android --profile production --non-interactive
-
-  build-ios:
-    name: Build iOS
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - uses: expo/expo-github-action@v8
-        with:
-          eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
-      - run: npm ci
-      - run: npx tsc -p packages/shared/tsconfig.json
-      - name: Build iOS
-        working-directory: packages/mobile
-        run: eas build -p ios --profile production --non-interactive
+```mermaid
+graph TD
+    A["git tag v0.1.0 && git push --tags"] --> B["release-desktop.yml"]
+    A --> C["release-mobile.yml"]
+    B --> D["macOS .dmg"]
+    B --> E["Windows .exe"]
+    B --> F["Linux .AppImage"]
+    C --> G["Android APK + AAB"]
+    C --> H["iOS IPA"]
+    G --> I["Auto-submit to Play Store (optional)"]
+    H --> J["Auto-submit to App Store (optional)"]
 ```
 
 ---
 
-## 4. Complete Secrets Reference
+## 4. Code Signing — Step by Step
 
-### Where each secret goes
+### Why sign?
+
+| Platform | Without signing | With signing |
+|----------|----------------|-------------|
+| **macOS** | "Oh Right! is damaged and can't be opened" | Opens normally |
+| **Windows** | "Windows protected your PC" (SmartScreen) | Opens normally |
+| **iOS** | Can't install outside TestFlight | App Store distribution |
+| **Android** | Requires "Install from unknown sources" | Play Store distribution |
+| **Linux** | No issues | No issues |
+
+---
+
+### 4.1 macOS Code Signing + Notarization
+
+#### Prerequisites
+- Apple Developer account ($99/year) at [developer.apple.com](https://developer.apple.com)
+
+#### Step 1: Create a Developer ID certificate
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  SECRET                      │ WHERE TO SET │ REQUIRED WHEN │
-├──────────────────────────────┼──────────────┼───────────────┤
-│ APPLE_CERTIFICATE            │ GitHub       │ macOS signing │
-│ APPLE_CERTIFICATE_PASSWORD   │ GitHub       │ macOS signing │
-│ APPLE_SIGNING_IDENTITY       │ GitHub       │ macOS signing │
-│ APPLE_ID                     │ GitHub       │ macOS notarize│
-│ APPLE_PASSWORD               │ GitHub       │ macOS notarize│
-│ APPLE_TEAM_ID                │ GitHub       │ macOS notarize│
-│ TAURI_SIGNING_PRIVATE_KEY    │ GitHub       │ Windows sign  │
-│ EXPO_TOKEN                   │ GitHub       │ CI mobile     │
-│ GITHUB_TOKEN                 │ (automatic)  │ Always        │
-│                              │              │               │
-│ Apple Developer credentials  │ EAS (local)  │ iOS builds    │
-│   (prompted during eas build)│              │               │
-│ Google Play JSON key         │ EAS (local)  │ Android submit│
-│   (eas credentials -p android)              │               │
-└──────────────────────────────┴──────────────┴───────────────┘
+1. Go to developer.apple.com/account
+2. Click "Certificates, IDs & Profiles"
+3. Click "+" to create a new certificate
+4. Select "Developer ID Application"
+5. Follow the steps to create a Certificate Signing Request (CSR):
+   - Open Keychain Access on your Mac
+   - Menu: Keychain Access → Certificate Assistant → Request a Certificate from a CA
+   - Enter your email, select "Saved to disk"
+   - Upload the .certSigningRequest file to Apple
+6. Download the certificate → double-click to install in Keychain
+```
+
+#### Step 2: Export as .p12 for CI
+
+```bash
+# 1. Open Keychain Access
+# 2. Go to "My Certificates"
+# 3. Find "Developer ID Application: Your Name (XXXXXXXXXX)"
+# 4. Right-click → "Export..."
+# 5. Save as .p12, set a strong password
+# 6. Base64-encode it for GitHub Actions:
+
+base64 -i ~/Desktop/OhRight-signing.p12 | pbcopy
+# The encoded string is now in your clipboard
+```
+
+#### Step 3: Create app-specific password for notarization
+
+```
+1. Go to appleid.apple.com
+2. Sign in
+3. Go to "Sign-In and Security" → "App-Specific Passwords"
+4. Click "Generate an App-Specific Password"
+5. Label: "Oh Right Notarization"
+6. Copy the generated password
+```
+
+#### Step 4: Find your Team ID
+
+```
+1. Go to developer.apple.com/account
+2. Look under "Membership Details"
+3. Your Team ID is the 10-character alphanumeric code
+```
+
+#### Step 5: Add secrets to GitHub
+
+Go to: **GitHub repo → Settings → Secrets and variables → Actions**
+
+| Secret Name | Value |
+|-------------|-------|
+| `APPLE_CERTIFICATE` | The base64 string from Step 2 |
+| `APPLE_CERTIFICATE_PASSWORD` | Password you set in Step 2 |
+| `APPLE_SIGNING_IDENTITY` | `Developer ID Application: Your Name (XXXXXXXXXX)` |
+| `APPLE_ID` | Your Apple ID email |
+| `APPLE_PASSWORD` | App-specific password from Step 3 |
+| `APPLE_TEAM_ID` | 10-char Team ID from Step 4 |
+
+#### Step 6: Verify
+
+Push a tag → the CI builds a signed + notarized .dmg that installs without warnings.
+
+```bash
+# To verify signing locally:
+codesign -dv --verbose=4 "Oh Right!.app"
+# Should show: Authority=Developer ID Application: Your Name
+
+# To verify notarization:
+spctl -a -vvv "Oh Right!.app"
+# Should show: source=Notarized Developer ID
+```
+
+---
+
+### 4.2 Windows Code Signing
+
+#### Prerequisites
+- Code signing certificate from a CA ($70-200/year)
+- Recommended: [SSL.com](https://ssl.com) ($70/yr OV), [Sectigo](https://sectigo.com) ($80/yr), [DigiCert](https://digicert.com) ($200/yr EV)
+
+#### Process
+
+```
+1. Purchase an OV or EV code signing certificate
+   - OV (Organization Validation): cheaper, but SmartScreen builds reputation slowly
+   - EV (Extended Validation): more expensive, but instant SmartScreen trust
+
+2. The CA will verify your identity (takes 1-5 days)
+
+3. Once issued, you'll receive a .pfx or .p12 certificate file
+
+4. Base64-encode it:
+   # On macOS/Linux:
+   base64 -i certificate.pfx | pbcopy
+
+   # On Windows:
+   certutil -encode certificate.pfx encoded.txt
+
+5. Add to GitHub secrets:
+   Secret Name: TAURI_SIGNING_PRIVATE_KEY
+   Value: the base64-encoded certificate
+```
+
+> **Tip:** Start without Windows signing. SmartScreen warnings are annoying but users can click "More info → Run anyway". Get signing when you have paying users.
+
+---
+
+### 4.3 iOS Code Signing (EAS handles it)
+
+EAS Build manages iOS signing automatically. You don't need to create certificates manually.
+
+```bash
+# First time: EAS prompts you to log into Apple Developer
+eas build -p ios --profile production
+
+# What happens behind the scenes:
+# 1. EAS logs into your Apple Developer account
+# 2. Creates a Distribution Certificate (if needed)
+# 3. Creates a Provisioning Profile (if needed)
+# 4. Builds and signs the IPA
+# 5. You can submit directly:
+eas submit -p ios
+```
+
+#### If you want to manage credentials manually:
+
+```bash
+eas credentials -p ios
+
+# Options:
+# → "Log in to your Apple Developer account"
+# → "Use an existing Distribution Certificate" (if you have one)
+# → "Let EAS handle it" (recommended)
+```
+
+---
+
+### 4.4 Android Code Signing (EAS handles it)
+
+EAS creates and manages an upload keystore automatically for Play Store builds.
+
+```bash
+# First production build — EAS creates the keystore:
+eas build -p android --profile production
+
+# The keystore is stored securely on EAS servers
+# You can download a backup:
+eas credentials -p android
+# → Select "Download Keystore"
+# → SAVE THIS FILE — if lost, you can never update your Play Store app
+```
+
+#### For Google Play submission:
+
+```bash
+# 1. Create Play Console account: play.google.com/console ($25 one-time)
+# 2. Create the app listing
+# 3. Submit via EAS:
+eas submit -p android
+
+# Or manually: download the AAB from the EAS build URL and upload to Play Console
+```
+
+#### Google Play service account (for automated submission):
+
+```
+1. Go to Google Cloud Console → create a service account
+2. Go to Play Console → Settings → API access → link the service account
+3. Grant "Release manager" permissions
+4. Download the JSON key file
+5. Configure in EAS:
+   eas credentials -p android
+   → "Set up Google Service Account Key for Play Store submissions"
+   → Upload the JSON key
+```
+
+---
+
+### 4.5 Signing Timeline (Recommended Order)
+
+```mermaid
+graph TD
+    A["Phase 1: Testing"] --> B["No signing needed"]
+    B --> C["Distribute unsigned via GitHub Releases"]
+    C --> D["Phase 2: Early Users"]
+    D --> E["macOS signing ($99/yr Apple Dev)"]
+    D --> F["Android Play Store ($25 one-time)"]
+    E --> G["Phase 3: Public Launch"]
+    F --> G
+    G --> H["iOS App Store (included in Apple Dev)"]
+    G --> I["Windows signing ($70-200/yr)"]
+    I --> J["Phase 4: Scale"]
+    H --> J
+    J --> K["Mac App Store (optional)"]
+    J --> L["Microsoft Store (optional)"]
+```
+
+**Right now you're in Phase 1.** Everything works without signing — just some OS warnings.
+
+---
+
+## 5. Complete Secrets Reference
+
+### All secrets in one place
+
+| Secret Name | Platform | Where to Set | How to Get | Required When |
+|-------------|----------|-------------|-----------|---------------|
+| `APPLE_CERTIFICATE` | macOS | GitHub Actions | Keychain Access → export .p12 → `base64 -i cert.p12` | Signed macOS builds |
+| `APPLE_CERTIFICATE_PASSWORD` | macOS | GitHub Actions | Password you set when exporting .p12 | Signed macOS builds |
+| `APPLE_SIGNING_IDENTITY` | macOS | GitHub Actions | Keychain Access → "My Certificates" → copy name | Signed macOS builds |
+| `APPLE_ID` | macOS | GitHub Actions | Your Apple ID email | Notarized macOS builds |
+| `APPLE_PASSWORD` | macOS | GitHub Actions | appleid.apple.com → App-Specific Passwords | Notarized macOS builds |
+| `APPLE_TEAM_ID` | macOS | GitHub Actions | developer.apple.com/account → Membership | Notarized macOS builds |
+| `TAURI_SIGNING_PRIVATE_KEY` | Windows | GitHub Actions | Code signing cert from CA → base64 encode | Signed Windows builds |
+| `EXPO_TOKEN` | Mobile | GitHub Actions | expo.dev → Account Settings → Access Tokens | CI mobile builds |
+| `GITHUB_TOKEN` | All | (automatic) | Provided by GitHub | Always |
+
+### Where to add GitHub secrets
+
+```
+https://github.com/h3nryza/todo_app/settings/secrets/actions
+
+→ Click "New repository secret"
+→ Enter name and value
+→ Click "Add secret"
 ```
 
 ### Cost summary
 
-| Service | Cost | What you get |
-|---------|------|-------------|
-| GitHub Actions | **Free** (2,000 min/month) | Desktop builds for all OS |
-| EAS Build | **Free** (30 builds/month) | Mobile builds (Android + iOS) |
-| Apple Developer | $99/year | macOS signing + iOS App Store |
-| Google Play Console | $25 one-time | Android Play Store |
-| Windows code signing | $70-200/year | Remove SmartScreen warnings |
-
-> **For testing/development: everything is free.** You only pay when you're ready for public distribution.
+| Service | Cost | What you get | When to buy |
+|---------|------|-------------|-------------|
+| GitHub Actions | **Free** | Desktop builds, CI/CD | Now (already using) |
+| EAS Build | **Free** | 30 mobile builds/month | Now (set up above) |
+| Apple Developer | $99/year | macOS signing + iOS | When ready for users |
+| Google Play Console | $25 one-time | Android distribution | When ready for users |
+| Windows code signing | $70-200/year | No SmartScreen warnings | When you have users |
 
 ---
 
-## 5. Day-to-Day Workflow
+## 6. Day-to-Day Workflow
 
 ### Development (daily)
 
@@ -367,31 +450,37 @@ git add . && git commit -m "feat: whatever" && git push
 # 2. Commit the version bump
 git add -A && git commit -m "chore: bump version to 0.1.0"
 
-# 3. Tag and push — this triggers ALL cloud builds
+# 3. Tag and push — triggers ALL cloud builds (desktop + mobile)
 git tag v0.1.0
 git push && git push --tags
 
-# 4. Desktop builds happen on GitHub Actions (~10-15 min)
-#    → .dmg (macOS), .exe/.msi (Windows), .deb/.AppImage (Linux)
-#    → All uploaded to GitHub Releases automatically
+# 4. Everything happens automatically:
+#    Desktop (~10-15 min): .dmg, .exe, .msi, .deb, .AppImage → GitHub Releases
+#    Mobile (~15-20 min): APK, AAB, IPA → EAS dashboard + optional store submission
+```
 
-# 5. Mobile builds (manual for now, or automated with the workflow above)
-cd packages/mobile
-eas build -p android --profile production
-eas build -p ios --profile production
+### Complete pipeline
+
+```mermaid
+graph LR
+    A["git push --tags"] --> B["GitHub Actions"]
+    A --> C["GitHub Actions"]
+    B --> D["release-desktop.yml"]
+    C --> E["release-mobile.yml"]
+    D --> F["macOS arm64 .dmg"]
+    D --> G["macOS x64 .dmg"]
+    D --> H["Windows .exe + .msi"]
+    D --> I["Linux .deb + .AppImage"]
+    E --> J["Android APK + AAB"]
+    E --> K["iOS IPA"]
+    F --> L["GitHub Release"]
+    G --> L
+    H --> L
+    I --> L
+    J --> M["EAS + Play Store"]
+    K --> N["EAS + App Store"]
 ```
 
 ### What you never build locally again
 
-```mermaid
-graph LR
-    A[You: write code + push] --> B[GitHub Actions]
-    A --> C[EAS Build]
-    B --> D[macOS .dmg ✅]
-    B --> E[Windows .exe ✅]
-    B --> F[Linux .AppImage ✅]
-    C --> G[Android .apk ✅]
-    C --> H[iOS .ipa ✅]
-```
-
-The only local build you might still do is `npx tauri dev` for quick desktop testing — and even that's optional since you already have `Oh Right!.app` installed.
+Everything. Push a tag → go get coffee → all 7 platform binaries ready when you get back.
