@@ -7,7 +7,7 @@
     "frontendDist": "../../ui/dist",
     "devUrl": "http://localhost:1420",
     "beforeDevCommand": "npm run dev -w @ohright/ui",
-    "beforeBuildCommand": ""
+    "beforeBuildCommand": "npx tsc -p ../../shared/tsconfig.json && cd ../../ui && npx vite build"
   },
   "app": {
     "windows": [
