@@ -12,6 +12,14 @@ import { getDatabase } from '@/lib/database';
 import { emit, EVENTS } from '@/lib/events';
 import { scheduleNotification, cancelNotification } from './notifications.service';
 
+function safeJsonParse<T>(json: string, fallback: T): T {
+  try {
+    return JSON.parse(json) as T;
+  } catch {
+    return fallback;
+  }
+}
+
 interface ReminderRow {
   id: string;
   name: string;
@@ -63,7 +71,7 @@ function mapCompletionRow(row: CompletionRow): CompletionRecord {
     scheduledFor: row.scheduled_for,
     completedAt: row.completed_at,
     action: row.action as CompletionRecord['action'],
-    subtaskSnapshot: JSON.parse(row.subtask_snapshot) as Subtask[],
+    subtaskSnapshot: safeJsonParse<Subtask[]>(row.subtask_snapshot, []),
   };
 }
 
@@ -72,7 +80,12 @@ function mapReminderRow(
   subtasks: Subtask[] = [],
   completionHistory: CompletionRecord[] = [],
 ): Reminder {
-  const schedule = JSON.parse(row.schedule_config) as ScheduleConfig;
+  const schedule = safeJsonParse<ScheduleConfig>(row.schedule_config, {
+    type: 'once',
+    startDate: new Date().toISOString(),
+    timeOfDay: '09:00',
+    timezone: 'UTC',
+  } as ScheduleConfig);
   return {
     id: row.id,
     userId: '',

@@ -1,21 +1,22 @@
 # Oh Right! — Security Audit Report
 
-> Audit date: 2026-03-24
+> Audit date: 2026-03-24 (updated with fixes)
 > Scope: All packages (shared, ui, desktop, mobile) + CI/CD pipelines
-> Method: Manual code review of every source file
+> Method: Manual code review of every source file (3 parallel audits)
+> Status: HIGH and MEDIUM issues fixed. See "Fixed" column below.
 
 ---
 
 ## Executive Summary
 
-| Severity | Count | Status |
-|----------|-------|--------|
-| **Critical** | 0 | — |
-| **High** | 2 | Needs fixing before public release |
-| **Medium** | 7 | Should fix soon |
-| **Low** | 9 | Fix when convenient |
+| Severity | Found | Fixed | Remaining |
+|----------|-------|-------|-----------|
+| **Critical** | 0 | — | 0 |
+| **High** | 2 | 2 | 0 |
+| **Medium** | 8 | 6 | 2 (documented) |
+| **Low** | 10 | 6 | 4 (minor) |
 
-**No critical vulnerabilities found.** The codebase uses parameterized SQL queries throughout (no SQL injection), no `dangerouslySetInnerHTML` (no XSS), and no hardcoded secrets. The two HIGH findings are configuration issues that are straightforward to fix.
+**No critical vulnerabilities found.** The codebase uses parameterized SQL queries throughout (zero SQL injection), no `dangerouslySetInnerHTML` (zero XSS), and no hardcoded secrets. HIGH findings were configuration issues — now fixed.
 
 ---
 
